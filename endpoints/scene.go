@@ -49,20 +49,3 @@ func (s *sceneRequest) Bind(r *http.Request) error {
 	}
 	return nil
 }
-
-/*
-func POSTScene(w http.ResponseWriter, r *http.Request) {
-	data := &sceneRequest{}
-
-	if err := render.Bind(r, data); err != nil {
-		render.Status(r, http.StatusBadRequest)
-		return
-	}
-
-	path := fmt.Sprintf("./scenes/%d", util.ScenesMetadata.SceneCount)
-	os.Mkdir(path, 0755)
-
-	render.Status(r, http.StatusOK)
-	return
-}
-*/

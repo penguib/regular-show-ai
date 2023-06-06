@@ -93,4 +93,7 @@ func GenerateScenes() {
 		panic(err)
 	}
 
+	scene.Dirty = false
+	util.ScenesMetadata.UnusedScenes[fmt.Sprint(scene.ID)] = scene
+	util.ScenesMetadata.SceneCount++
 }

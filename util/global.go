@@ -64,6 +64,7 @@ func (s *Scenes) CleanAllScenes() {
 		s.UnusedScenes[fmt.Sprint(v.ID)] = v
 	}
 	s.CleanScenes = s.SceneCount
+	fmt.Println("cleaning scenes")
 }
 
 var ScenesMetadata Scenes
