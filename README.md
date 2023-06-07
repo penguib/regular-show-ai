@@ -30,8 +30,9 @@ The characters field is a bitfield representing which characters are in the scen
 | 3   | 4     | Pops      |
 | 4   | 8     | Beson     |
 | 5   | 16    | Muscle Man |
+| 6   | 32    | Doe        |
 
-So the `3`, or `0b11`, in the example above would indicate that Mordecai and Rigby are in that conversation.
+So the `3`, or `0b11`, in the example above would indicate that Mordecai and Rigby are in that conversation. [John] Doe is the fallback character if something went wrong with identifying the current character talking. In this case, just pick a random character.
 
 ### Conversations
 The conversations field is structed as follows:
