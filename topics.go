@@ -10,6 +10,7 @@ import (
 	"regular-show-ai/models"
 	"regular-show-ai/util"
 	"strings"
+	"time"
 
 	openai "github.com/sashabaranov/go-openai"
 )
@@ -49,21 +50,21 @@ func SetUpDir() string {
 	return path
 }
 
-func GenerateScenes() {
+func generateScenes() {
 	content, err := generateConversation()
 	if err != nil {
-		panic(err)
+		return
 	}
 
 	r, err := regexp.Compile("([a-zA-Z]+):")
 	if err != nil {
-		panic(err)
+		return
 	}
 
 	var scene models.Scene
 	characters := 0
 
-	for i, v := range content {
+	for _, v := range content {
 		match := r.FindString(v)
 
 		// sometimes theres a literal empty string for some reason
@@ -79,7 +80,6 @@ func GenerateScenes() {
 		scene.Conversation = append(scene.Conversation, models.Speech{
 			Character: models.GetCharacterByName(character),
 			Content:   speech,
-			AudioFile: fmt.Sprintf("%d.wav", i),
 		})
 	}
 
@@ -96,4 +96,14 @@ func GenerateScenes() {
 	scene.Dirty = false
 	util.ScenesMetadata.UnusedScenes[fmt.Sprint(scene.ID)] = scene
 	util.ScenesMetadata.SceneCount++
+}
+
+func loopScenes() {
+}
+
+func GenerateTopics() {
+	for {
+		generateScenes()
+		time.Sleep(1 * time.Minute)
+	}
 }

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 	"regular-show-ai/endpoints"
@@ -15,6 +16,17 @@ import (
 var chatGPT *openai.Client
 
 func main() {
+
+	generateTopics := false
+	args := os.Args[1:]
+	if len(args) > 0 {
+		if args[0] == "-g" {
+			generateTopics = true
+		}
+	}
+
+	fmt.Println(generateTopics)
+
 	r := chi.NewRouter()
 	if err := godotenv.Load(); err != nil {
 		panic(err)
@@ -26,7 +38,10 @@ func main() {
 	r.Use(middleware.RequestID)
 
 	util.ScenesMetadata.Init()
-	GenerateScenes()
+
+	if generateTopics {
+		go GenerateTopics()
+	}
 
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Hello, world"))

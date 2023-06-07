@@ -16,7 +16,6 @@ const (
 type Speech struct {
 	Character Character
 	Content   string
-	AudioFile string `json:"audio_file"`
 }
 
 type Scene struct {
