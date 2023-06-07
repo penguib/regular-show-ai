@@ -98,9 +98,6 @@ func generateScenes() {
 	util.ScenesMetadata.SceneCount++
 }
 
-func loopScenes() {
-}
-
 func GenerateTopics() {
 	for {
 		generateScenes()

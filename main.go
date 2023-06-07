@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 	"os"
 	"regular-show-ai/endpoints"
@@ -24,8 +23,6 @@ func main() {
 			generateTopics = true
 		}
 	}
-
-	fmt.Println(generateTopics)
 
 	r := chi.NewRouter()
 	if err := godotenv.Load(); err != nil {

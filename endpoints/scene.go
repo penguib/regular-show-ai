@@ -1,7 +1,6 @@
 package endpoints
 
 import (
-	"errors"
 	"fmt"
 	"math/rand"
 	"net/http"
@@ -37,15 +36,4 @@ func GETScene(w http.ResponseWriter, r *http.Request) {
 	render.JSON(w, r, scene)
 
 	util.ScenesMetadata.DiscardScene(key)
-}
-
-type sceneRequest struct {
-	Conversation []models.Speech
-}
-
-func (s *sceneRequest) Bind(r *http.Request) error {
-	if len(s.Conversation) == 0 {
-		return errors.New("Cannot post empty scene")
-	}
-	return nil
 }
