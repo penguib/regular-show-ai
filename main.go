@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 	"regular-show-ai/endpoints"
@@ -14,7 +15,13 @@ import (
 
 var chatGPT *openai.Client
 
+const (
+	port = 3000
+)
+
 func main() {
+	fmt.Print("\033[H\033[2J")
+	fmt.Print(util.Mordecai)
 
 	generateTopics := false
 	args := os.Args[1:]
@@ -37,6 +44,7 @@ func main() {
 	util.ScenesMetadata.Init()
 
 	if generateTopics {
+		util.Log("Generating topics enabled")
 		go GenerateTopics()
 	}
 
@@ -50,5 +58,6 @@ func main() {
 		})
 	})
 
-	http.ListenAndServe(":3000", r)
+	util.Log(fmt.Sprintf("Listening at port %d", port))
+	http.ListenAndServe(fmt.Sprintf(":%d", port), r)
 }
