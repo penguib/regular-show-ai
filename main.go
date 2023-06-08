@@ -32,19 +32,27 @@ func main() {
 	}
 
 	r := chi.NewRouter()
-	if err := godotenv.Load(); err != nil {
-		panic(err)
-	}
 
-	chatGPT = openai.NewClient(os.Getenv("OPENAI_API_KEY"))
+    if generateTopics {
+		util.Log("Generating topics enabled")
+        if err := godotenv.Load(); err != nil {
+            panic(err)
+        }
+        chatGPT = openai.NewClient(os.Getenv("OPENAI_API_KEY"))
+    }
+
 
 	r.Use(middleware.Logger)
 	r.Use(middleware.RequestID)
 
-	util.ScenesMetadata.Init()
+    err := util.ScenesMetadata.Init()
+    if err != nil {
+        util.Log("You have no scenes on disk")
+        return
+    }
+
 
 	if generateTopics {
-		util.Log("Generating topics enabled")
 		go GenerateTopics()
 	}
 

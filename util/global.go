@@ -2,6 +2,7 @@ package util
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -14,8 +15,13 @@ type Scenes struct {
 	UnusedScenes map[string]models.Scene
 }
 
-func (s *Scenes) Init() {
+func (s *Scenes) Init() error {
 	files, _ := ioutil.ReadDir("./scenes")
+
+    if len(files) == 0 {
+        return errors.New("No scenes")
+    }
+
 	s.UnusedScenes = make(map[string]models.Scene)
 
 	for _, v := range files {
@@ -48,6 +54,8 @@ func (s *Scenes) Init() {
 
 	s.CleanScenes = len(files)
 	s.SceneCount = len(files)
+
+    return nil
 }
 
 func (s *Scenes) DiscardScene(id string) {
