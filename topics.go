@@ -40,7 +40,7 @@ func generateConversation() ([]string, error) {
 	return splitContent, nil
 }
 
-func SetUpDir() string {
+func setUpDir() string {
 	path := fmt.Sprintf("./scenes/%d", util.ScenesMetadata.SceneCount+1)
 	os.Mkdir(path, 0755)
 
@@ -86,7 +86,7 @@ func generateScenes() {
 	scene.ID = util.ScenesMetadata.SceneCount + 1
 	scene.Characters = characters
 
-	path := SetUpDir()
+	path := setUpDir()
 	file, _ := json.MarshalIndent(scene, "", "	")
 	err = ioutil.WriteFile(fmt.Sprintf("%s/metadata.json", path), file, 0644)
 	if err != nil {

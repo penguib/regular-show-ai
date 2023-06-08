@@ -9,14 +9,26 @@ import (
 	"regular-show-ai/models"
 )
 
+var diskPath string
+
 type Scenes struct {
 	CleanScenes  int
 	SceneCount   int
 	UnusedScenes map[string]models.Scene
 }
 
-func (s *Scenes) Init() error {
-	files, _ := ioutil.ReadDir("./scenes")
+func (s *Scenes) Init(dpath string) error {
+    if dpath == "" {
+        diskPath = "./scenes"
+    } else {
+        diskPath = dpath
+    }
+
+	files, err := ioutil.ReadDir(dpath)
+
+    if err != nil {
+        return errors.New(fmt.Sprintf("Problem with trying reading scenes directory: %s", diskPath))
+    }
 
     if len(files) == 0 {
         return errors.New("No scenes")
@@ -28,7 +40,7 @@ func (s *Scenes) Init() error {
 		if !v.IsDir() {
 			continue
 		}
-		path := fmt.Sprintf("./scenes/%s/metadata.json", v.Name())
+		path := fmt.Sprintf("%s/%s/metadata.json", diskPath, v.Name())
 		metadata, err := os.Open(path)
 		if err != nil {
 			panic(err)

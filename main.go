@@ -25,11 +25,21 @@ func main() {
 
 	generateTopics := false
 	args := os.Args[1:]
+    dpath := ""
+
+    // dubious. should be using an argument parser package
 	if len(args) > 0 {
-		if args[0] == "-g" {
-			generateTopics = true
-		}
-	}
+        dpath = args[0]
+        if len(args) > 1 {
+            if args[1] == "-g" {
+                generateTopics = true
+            }
+        }
+	} else {
+        util.Log("Not enough arguments")
+        return
+    }
+    util.Log(fmt.Sprintf("Set disk path to %s", dpath))
 
 	r := chi.NewRouter()
 
@@ -45,7 +55,7 @@ func main() {
 	r.Use(middleware.Logger)
 	r.Use(middleware.RequestID)
 
-    err := util.ScenesMetadata.Init()
+    err := util.ScenesMetadata.Init(dpath)
     if err != nil {
         util.Log("You have no scenes on disk")
         return
