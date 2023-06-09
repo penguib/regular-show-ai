@@ -18,28 +18,30 @@ type Scenes struct {
 }
 
 func (s *Scenes) Init(dpath string) error {
-    if dpath == "" {
-        diskPath = "./scenes"
-    } else {
-        diskPath = dpath
-    }
+	if dpath == "" {
+		diskPath = "./scenes"
+	} else {
+		diskPath = dpath
+	}
 
 	files, err := ioutil.ReadDir(dpath)
 
-    if err != nil {
-        return errors.New(fmt.Sprintf("Problem with trying reading scenes directory: %s", diskPath))
-    }
+	if err != nil {
+		return errors.New(fmt.Sprintf("Problem with trying reading scenes directory: %s", diskPath))
+	}
 
-    if len(files) == 0 {
-        return errors.New("No scenes")
-    }
+	if len(files) == 0 {
+		return errors.New("No scenes")
+	}
 
 	s.UnusedScenes = make(map[string]models.Scene)
+	fileCount := 0
 
 	for _, v := range files {
 		if !v.IsDir() {
 			continue
 		}
+
 		path := fmt.Sprintf("%s/%s/metadata.json", diskPath, v.Name())
 		metadata, err := os.Open(path)
 		if err != nil {
@@ -62,12 +64,13 @@ func (s *Scenes) Init(dpath string) error {
 		scene.Dirty = false
 
 		s.UnusedScenes[v.Name()] = scene
+		fileCount++
 	}
 
-	s.CleanScenes = len(files)
-	s.SceneCount = len(files)
+	s.CleanScenes = fileCount
+	s.SceneCount = fileCount
 
-    return nil
+	return nil
 }
 
 func (s *Scenes) DiscardScene(id string) {
