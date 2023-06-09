@@ -50,7 +50,7 @@ func generateConversation() ([]string, error) {
 }
 
 func setUpDir() string {
-	path := fmt.Sprintf("./scenes/%d", util.ScenesMetadata.SceneCount+1)
+	path := fmt.Sprintf("%s/scenes/%d", util.DiskPath, util.ScenesMetadata.SceneCount+1)
 	os.Mkdir(path, 0755)
 
 	audioPath := fmt.Sprintf("%s/audio", path)

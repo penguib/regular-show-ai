@@ -9,7 +9,7 @@ import (
 	"regular-show-ai/models"
 )
 
-var diskPath string
+var DiskPath string
 
 type Scenes struct {
 	CleanScenes  int
@@ -19,15 +19,15 @@ type Scenes struct {
 
 func (s *Scenes) Init(dpath string) error {
 	if dpath == "" {
-		diskPath = "./scenes"
+		DiskPath = "./scenes"
 	} else {
-		diskPath = dpath
+		DiskPath = dpath
 	}
 
 	files, err := ioutil.ReadDir(dpath)
 
 	if err != nil {
-		return errors.New(fmt.Sprintf("Problem with trying reading scenes directory: %s", diskPath))
+		return errors.New(fmt.Sprintf("Problem with trying reading scenes directory: %s", DiskPath))
 	}
 
 	if len(files) == 0 {
@@ -42,7 +42,7 @@ func (s *Scenes) Init(dpath string) error {
 			continue
 		}
 
-		path := fmt.Sprintf("%s/%s/metadata.json", diskPath, v.Name())
+		path := fmt.Sprintf("%s/%s/metadata.json", DiskPath, v.Name())
 		metadata, err := os.Open(path)
 		if err != nil {
 			panic(err)
