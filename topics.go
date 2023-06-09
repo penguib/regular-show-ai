@@ -16,6 +16,7 @@ import (
 	"time"
 
 	openai "github.com/sashabaranov/go-openai"
+	ffmpeg_go "github.com/u2takey/ffmpeg-go"
 )
 
 const (
@@ -97,6 +98,14 @@ func checkAudioStatus(audioUUID string) (bool, string) {
 	return false, ""
 }
 
+func ffmpegWAVtoWAV(path string) {
+	newWAVPath := strings.Replace(path, "temp-", "", -1)
+	err := ffmpeg_go.Input(path, nil).Output(newWAVPath, nil).Run()
+	if err != nil {
+		panic(err)
+	}
+}
+
 func generateAudio(speech []models.Speech, dpath string) {
 	for i, v := range speech {
 		voiceUUID := models.GetCharacterVoiceUUID(v.Character)
@@ -137,7 +146,8 @@ func generateAudio(speech []models.Speech, dpath string) {
 
 			defer res.Body.Close()
 
-			file, err := os.Create(fmt.Sprintf("%s/audio/%d.wav", dpath, i))
+			audioPath := fmt.Sprintf("%s/audio/temp-%d.wav", dpath, i)
+			file, err := os.Create(audioPath)
 			if err != nil {
 				panic(err)
 			}
@@ -146,6 +156,9 @@ func generateAudio(speech []models.Speech, dpath string) {
 			if err != nil {
 				panic(err)
 			}
+
+			ffmpegWAVtoWAV(audioPath)
+
 		}
 	}
 }
