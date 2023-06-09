@@ -194,10 +194,10 @@ func generateScenes() {
 	}
 
 	scene.Dirty = false
+	generateAudio(scene.Conversation, path)
+
 	util.ScenesMetadata.UnusedScenes[fmt.Sprint(scene.ID)] = scene
 	util.ScenesMetadata.SceneCount++
-
-	generateAudio(scene.Conversation, path)
 }
 
 func GenerateTopics() {
