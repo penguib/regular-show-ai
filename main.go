@@ -25,44 +25,42 @@ func main() {
 
 	generateTopics := false
 	args := os.Args[1:]
-    dpath := ""
+	dpath := ""
 
-    // dubious. should be using an argument parser package
+	// dubious. should be using an argument parser package
 	if len(args) > 0 {
-        dpath = args[0]
-        if len(args) > 1 {
-            if args[1] == "-g" {
-                generateTopics = true
-            }
-        }
+		dpath = args[0]
+		if len(args) > 1 {
+			if args[1] == "-g" {
+				generateTopics = true
+			}
+		}
 	} else {
-        util.Log("Not enough arguments")
-        return
-    }
-    util.Log(fmt.Sprintf("Set disk path to %s", dpath))
+		util.Log("Not enough arguments")
+		return
+	}
+	util.Log(fmt.Sprintf("Set disk path to %s", dpath))
 
 	r := chi.NewRouter()
 
-    if generateTopics {
-		util.Log("Generating topics enabled")
-        if err := godotenv.Load(); err != nil {
-            panic(err)
-        }
-        chatGPT = openai.NewClient(os.Getenv("OPENAI_API_KEY"))
-    }
-
+	if generateTopics {
+		if err := godotenv.Load(); err != nil {
+			panic(err)
+		}
+		chatGPT = openai.NewClient(os.Getenv("OPENAI_API_KEY"))
+	}
 
 	r.Use(middleware.Logger)
 	r.Use(middleware.RequestID)
 
-    err := util.ScenesMetadata.Init(dpath)
-    if err != nil {
-        util.Log("You have no scenes on disk")
-        return
-    }
-
+	err := util.ScenesMetadata.Init(dpath)
+	if err != nil {
+		util.Log("You have no scenes on disk")
+		return
+	}
 
 	if generateTopics {
+		util.Log("Generating topics enabled")
 		go GenerateTopics()
 	}
 

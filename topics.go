@@ -1,10 +1,13 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
+	"net/http"
 	"os"
 	"regexp"
 	"regular-show-ai/models"
@@ -13,6 +16,12 @@ import (
 	"time"
 
 	openai "github.com/sashabaranov/go-openai"
+)
+
+const (
+	uberduckAPI         = "https://api.uberduck.ai/speak"
+	uberduckStatusAPI   = "https://api.uberduck.ai/speak-status"
+	maxAudioWaitSeconds = 10
 )
 
 func generateConversation() ([]string, error) {
@@ -48,6 +57,96 @@ func setUpDir() string {
 	os.Mkdir(audioPath, 0755)
 
 	return path
+}
+
+func checkAudioStatus(audioUUID string) (bool, string) {
+	for i := 0; i < maxAudioWaitSeconds; i++ {
+		req, err := http.NewRequest("GET", uberduckStatusAPI, nil)
+		if err != nil {
+			panic(err)
+		}
+
+		q := req.URL.Query()
+		q.Add("uuid", audioUUID)
+		req.URL.RawQuery = q.Encode()
+
+		req.SetBasicAuth(os.Getenv("UBERDUCK_PUBLIC_KEY"), os.Getenv("UBERDUCK_PRIVATE_KEY"))
+		client := &http.Client{}
+		resp, err := client.Do(req)
+		if err != nil {
+			fmt.Println("Error sending request:", err)
+			return false, ""
+		}
+		defer resp.Body.Close()
+
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			panic(err)
+		}
+
+		var jsonResp map[string]interface{}
+		json.Unmarshal(body, &jsonResp)
+
+		if jsonResp["path"] != nil {
+			return true, jsonResp["path"].(string)
+		}
+
+		time.Sleep(1 * time.Second)
+	}
+	return false, ""
+}
+
+func generateAudio(speech []models.Speech, dpath string) {
+	for i, v := range speech {
+		voiceUUID := models.GetCharacterVoiceUUID(v.Character)
+		payload, _ := json.Marshal(map[string]interface{}{
+			"speech":          v.Content,
+			"voicemodel_uuid": voiceUUID,
+		})
+		req, err := http.NewRequest("POST", uberduckAPI, bytes.NewBuffer(payload))
+		if err != nil {
+			panic(err)
+		}
+		req.SetBasicAuth(os.Getenv("UBERDUCK_PUBLIC_KEY"), os.Getenv("UBERDUCK_PRIVATE_KEY"))
+		req.Header.Set("Content-Type", "application/json")
+
+		client := &http.Client{}
+		res, err := client.Do(req)
+		if err != nil {
+			panic(err)
+		}
+
+		defer res.Body.Close()
+
+		body, err := ioutil.ReadAll(res.Body)
+		if err != nil {
+			panic(err)
+		}
+
+		var jsonResp map[string]interface{}
+		json.Unmarshal(body, &jsonResp)
+		audioUUID := jsonResp["uuid"]
+
+		status, path := checkAudioStatus(audioUUID.(string))
+		if status {
+			res, err := http.Get(path)
+			if err != nil {
+				panic(err)
+			}
+
+			defer res.Body.Close()
+
+			file, err := os.Create(fmt.Sprintf("%s/audio/%d.wav", dpath, i))
+			if err != nil {
+				panic(err)
+			}
+
+			_, err = io.Copy(file, res.Body)
+			if err != nil {
+				panic(err)
+			}
+		}
+	}
 }
 
 func generateScenes() {
@@ -96,6 +195,8 @@ func generateScenes() {
 	scene.Dirty = false
 	util.ScenesMetadata.UnusedScenes[fmt.Sprint(scene.ID)] = scene
 	util.ScenesMetadata.SceneCount++
+
+	generateAudio(scene.Conversation, path)
 }
 
 func GenerateTopics() {

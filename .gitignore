@@ -1,3 +1,5 @@
 scenes/
 .env
 *.exe
+*.py
+.vscode/
