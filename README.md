@@ -1,9 +1,13 @@
 # Regular Show AI
 
 ## How it works
-Once you run the executable, it reads from disk which scenes you have available. You can visit `localhost:3000/api/scene` to pick a random scene. Each time you request that link, you get another random scene. Each scene that is requested is then discarded until you've requested all possible scenes.
+When running the executable there are two arguments. 
 
-If you run the command with the `-g[enerate]` flag, a new scene will be generated every minute.
+`regular-show-ai.exe /path/to/scenes [-g]`
+
+The first argument is the path to your scenes folder on disk. The second is the argument if you want to generate more scenes. The scenes will be generated every minute.
+
+Once you run the executable, it reads from disk which scenes you have available. You can visit `localhost:3000/api/scene` to pick a random scene. Each time you request that link, you get another random scene. Each scene that is requested is then discarded until you've requested all possible scenes.
 
 ## Generating new scenes
 if the `-g` flag is provided when running the executable, scenes will be generated while also running the server. Every time a new scene is generated, it is eligible to be picked by the api. 
