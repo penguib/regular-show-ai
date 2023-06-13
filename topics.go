@@ -100,6 +100,7 @@ func checkAudioStatus(audioUUID string) (bool, string) {
 
 func ffmpegWAVtoWAV(path string) {
 	newWAVPath := strings.Replace(path, "temp-", "", -1)
+	newWAVPath = strings.Replace(newWAVPath, ".wav", "mp3", -1)
 	err := ffmpeg_go.Input(path, nil).Output(newWAVPath, nil).Run()
 	if err != nil {
 		panic(err)
@@ -206,11 +207,7 @@ func generateScenes() {
 		panic(err)
 	}
 
-	scene.Dirty = false
 	generateAudio(scene.Conversation, path)
-
-	util.ScenesMetadata.UnusedScenes[fmt.Sprint(scene.ID)] = scene
-	util.ScenesMetadata.SceneCount++
 }
 
 func GenerateTopics() {

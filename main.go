@@ -53,7 +53,7 @@ func main() {
 	r.Use(middleware.Logger)
 	r.Use(middleware.RequestID)
 
-	err := util.ScenesMetadata.Init(dpath)
+	err := util.ScenesMetadata.Init(dpath, generateTopics)
 	if err != nil {
 		util.Log("You have no scenes on disk")
 		return

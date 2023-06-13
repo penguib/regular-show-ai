@@ -17,7 +17,7 @@ type Scenes struct {
 	UnusedScenes map[string]models.Scene
 }
 
-func (s *Scenes) Init(dpath string) error {
+func (s *Scenes) Init(dpath string, generate bool) error {
 	if dpath == "" {
 		DiskPath = "./scenes"
 	} else {
@@ -30,12 +30,21 @@ func (s *Scenes) Init(dpath string) error {
 		return errors.New(fmt.Sprintf("Problem with trying reading scenes directory: %s", DiskPath))
 	}
 
-	if len(files) == 0 {
+	if len(files) == 0 && !generate {
 		return errors.New("No scenes")
 	}
 
 	s.UnusedScenes = make(map[string]models.Scene)
 	fileCount := 0
+
+	// If there are no scenes, we should still be able to generate them if the
+	// generate flag was provided
+	if len(files) == 0 && generate {
+		s.CleanScenes = 0
+		s.SceneCount = 0
+
+		return nil
+	}
 
 	for _, v := range files {
 		if !v.IsDir() {
