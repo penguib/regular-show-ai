@@ -98,9 +98,9 @@ func checkAudioStatus(audioUUID string) (bool, string) {
 	return false, ""
 }
 
-func ffmpegWAVtoWAV(path string) {
+func ffmpegWAVtoOGG(path string) {
 	newWAVPath := strings.Replace(path, "temp-", "", -1)
-	newWAVPath = strings.Replace(newWAVPath, ".wav", "mp3", -1)
+	newWAVPath = strings.Replace(newWAVPath, "wav", "ogg", -1)
 	err := ffmpeg_go.Input(path, nil).Output(newWAVPath, nil).Run()
 	if err != nil {
 		panic(err)
@@ -158,7 +158,7 @@ func generateAudio(speech []models.Speech, dpath string) {
 				panic(err)
 			}
 
-			ffmpegWAVtoWAV(audioPath)
+			ffmpegWAVtoOGG(audioPath)
 
 		}
 	}
