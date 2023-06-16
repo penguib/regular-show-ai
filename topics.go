@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"math/rand"
 	"net/http"
 	"os"
 	"regexp"
@@ -25,7 +26,90 @@ const (
 	maxAudioWaitSeconds = 10
 )
 
+func readTopicsList() (string, error) {
+	// kinda stupid we keep opening the file but whatever
+	topics, err := os.OpenFile("./ideas.txt", os.O_CREATE|os.O_RDWR, 0666)
+	if err != nil {
+		return "", err
+	}
+
+	defer topics.Close()
+
+	details, err := topics.Stat()
+	if err != nil {
+		return "", err
+	}
+
+	buf := bytes.NewBuffer(make([]byte, 0, details.Size()))
+
+	_, err = topics.Seek(0, io.SeekStart)
+	if err != nil {
+		return "", err
+	}
+
+	_, err = io.Copy(buf, topics)
+	if err != nil {
+		return "", err
+	}
+
+	// ReadBytes will return the first line, but now the buffer will
+	// have the entire file contents except for the first line. Now
+	// we should just copy these bytes into the file bytes and save it.
+	topic, err := buf.ReadBytes('\n')
+
+	if err != nil && err != io.EOF {
+		return "", err
+	}
+
+	_, err = topics.Seek(0, io.SeekStart)
+	if err != nil {
+		return "", err
+	}
+
+	nw, err := io.Copy(topics, buf)
+	if err != nil {
+		return "", err
+	}
+
+	err = topics.Truncate(nw)
+	if err != nil {
+		return "", err
+	}
+
+	err = topics.Sync()
+	if err != nil {
+		return "", err
+	}
+
+	return string(topic), nil
+}
+
+// currently only mordecai, rigby, and benson because
+// their voices sound the best. Muscle man should come
+// soon once the model is done
+func randomCharacters() string {
+	rand.Seed(time.Now().UnixNano())
+	i := rand.Intn(2)
+	if i == 0 {
+		return "mordecai and rigby"
+	}
+	return "mordecai, rigby, and benson"
+}
+
 func generateConversation() ([]string, error) {
+	topic, err := readTopicsList()
+	if err != nil {
+		panic(err)
+	}
+
+	// fallback if there was an error or there were no more
+	// topics in ideas.txt
+	if topic == "" {
+		topic = "something funny"
+	}
+
+	prompt := fmt.Sprintf("generate a discussion between %s from regular show that is between 4 and 9 lines long that is about %s", randomCharacters(), topic)
+
 	resp, err := chatGPT.CreateChatCompletion(
 		context.Background(),
 		openai.ChatCompletionRequest{
@@ -33,7 +117,7 @@ func generateConversation() ([]string, error) {
 			Messages: []openai.ChatCompletionMessage{
 				{
 					Role:    openai.ChatMessageRoleUser,
-					Content: "create a funny discussion between mordecai and rigby from regular show that is at most 4 lines long",
+					Content: prompt,
 				},
 			},
 		},
@@ -207,7 +291,7 @@ func generateScenes() {
 		panic(err)
 	}
 
-	generateAudio(scene.Conversation, path)
+	// generateAudio(scene.Conversation, path)
 }
 
 func GenerateTopics() {
