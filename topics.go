@@ -291,7 +291,7 @@ func generateScenes() {
 		panic(err)
 	}
 
-	// generateAudio(scene.Conversation, path)
+	generateAudio(scene.Conversation, path)
 }
 
 func GenerateTopics() {
