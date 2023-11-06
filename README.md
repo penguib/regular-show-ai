@@ -1,5 +1,8 @@
 # Regular Show AI
 
+## What is this
+This project is the server component of a project a friend and I made. This server creates scenes based on the cartoon Regular Show with AI-generated conversations with corresponding audio. Once the server has generated the conversation and audio, a JSON file is created with all data about the scene for a Unity game to query and implement with 3D models of the characters to act out.
+
 ## How it works
 When running the executable there are two arguments. 
 
